@@ -1,0 +1,25 @@
+<circuit version="1.1.0-SR0" rev="1917" stepSize="1000000" stepsPS="1000000" NLsteps="100000" reaStep="1000000" animate="0" >
+
+<item itemtype="Hd44780" CircId="Hd44780-2" mainComp="false" Show_id="true" Show_Val="false" Pos="624,356" rotation="0" hflip="1" vflip="1" label="Hd44780-2" idLabPos="70,-82" labelrot="0" valLabPos="-16,20" valLabRot="0" Rows="2" Cols="16" />
+
+<item itemtype="Subcircuit" CircId="Uno-3" mainComp="false" Show_id="true" Show_Val="false" Pos="904,368" rotation="0" hflip="1" vflip="1" label="Uno-3" idLabPos="0,-20" labelrot="0" valLabPos="-16,20" valLabRot="0" Logic_Symbol="false">
+<mainCompProps MainCompId="mega328-109" Frequency="16 MHz" Auto_Load="false" saveEepr="true" SerialMon="-1" />
+</item>
+
+<item itemtype="Ground" CircId="Ground-10" mainComp="false" Show_id="false" Show_Val="false" Pos="648,392" rotation="0" hflip="1" vflip="1" label="Ground-10" idLabPos="-16,8" labelrot="0" valLabPos="-16,20" valLabRot="0" />
+
+<item itemtype="Connector" uid="connector-172" startpinid="Uno-3-12" endpinid="Hd44780-2-PinRS" pointList="912,488,640,488,640,364" />
+
+<item itemtype="Connector" uid="connector-173" startpinid="Uno-3-11" endpinid="Hd44780-2-PinEn" pointList="912,480,656,480,656,364" />
+
+<item itemtype="Connector" uid="connector-174" startpinid="Uno-3-5" endpinid="Hd44780-2-dataPin4" pointList="912,424,696,424,696,364" />
+
+<item itemtype="Connector" uid="connector-175" startpinid="Uno-3-4" endpinid="Hd44780-2-dataPin5" pointList="912,416,704,416,704,364" />
+
+<item itemtype="Connector" uid="connector-176" startpinid="Uno-3-3" endpinid="Hd44780-2-dataPin6" pointList="912,408,712,408,712,364" />
+
+<item itemtype="Connector" uid="connector-177" startpinid="Uno-3-2" endpinid="Hd44780-2-dataPin7" pointList="912,400,720,400,720,364" />
+
+<item itemtype="Connector" uid="connector-178" startpinid="Hd44780-2-PinRW" endpinid="Ground-10-Gnd" pointList="648,364,648,376" />
+
+</circuit>
