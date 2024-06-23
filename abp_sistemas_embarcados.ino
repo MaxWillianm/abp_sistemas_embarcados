@@ -1,31 +1,82 @@
 #include <LiquidCrystal.h>
+#include "HX711.h"
+#include <NewPing.h>
+#include <Servo.h>
 
-const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+// pinos do display lcd 16x2
+// RS, E, D4, D5, D6, D7
+LiquidCrystal lcd(43, 41, 37, 35, 33, 31);
+int pwm = 13;
 
-const int botaoCima = 6;
-const int botaoBaixo = 7;
-const int botaoConfirmar = 8;
 
+Servo myservo;  // Cria um objeto baseado na biblioteca Servo
+
+// Define os pinos para o sensor ultrassônico e a distância máxima para medir (em centímetros)
+#define TRIGGER_PIN  24
+#define ECHO_PIN     26
+#define MAX_DISTANCE 200
+
+// pinos dos botoes
+const int botaoCima = 50;
+const int botaoBaixo = 48;
+const int botaoConfirmar = 46;
+
+// cria uma instancia da biblioteca HX711 na variavel escala para o sensor da balança
+HX711 escala;
+
+// Define os pinos para o sensor da balança
+#define SCK A0
+#define DT A1
+
+// Cria uma instância do objeto NewPing para o ultrassonico
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
+
+// variaveis globais e de configuração
 int opcaoSelecionada = 0;
 unsigned long ultimoDebounce = 0;
 const long debounceDelay = 150;
 int pesoMaximo = 0;
 int alturaMaxima = 0;
-int pesoAtual = A0;   // variaveis de teste
-int alturaAtual = A1; // variaveis de teste
 
 void setup()
 {
+  //seta os pinos dos leds
+  for(int i = 2; i <= 6; i++)
+  {
+    pinMode(i, OUTPUT);
+  }
+
+  // desliga os leds
+  for(int i = 2; i <= 6; i++)
+  {
+    digitalWrite(i, HIGH);
+  }
   pinMode(botaoCima, INPUT_PULLUP);
   pinMode(botaoBaixo, INPUT_PULLUP);
   pinMode(botaoConfirmar, INPUT_PULLUP);
   pinMode(botaoConfirmar, INPUT_PULLUP);
-  pinMode(pesoAtual, INPUT);
-  pinMode(alturaAtual, INPUT);
   Serial.begin(9600);
   lcd.begin(16, 2);
+  pinMode(pwm, INPUT);
+  analogWrite(pwm, 130);
   atualizarDisplay();
+
+  // inicia o servo na porta 9
+  myservo.attach(9);
+
+  // inicia a instancia 'escala'
+  escala.begin (DT, SCK);
+  // começa a leitura e calculos para iniciar a pesagem
+  Serial.print("Leitura do Valor ADC:  ");
+  Serial.println(escala.read());   // Aguarda até o dispositivo estar pronto
+  Serial.println("Nao coloque nada na balanca!");
+  Serial.println("Iniciando...");
+  escala.set_scale(765991.129);     // Substituir o valor encontrado para escala
+  escala.tare(20);
+  Serial.println("Balança pronta!");
+
+  // seta a posição inicial do servo
+  myservo.write(45);
 }
 
 void loop()
@@ -56,11 +107,6 @@ void loop()
       ultimoDebounce = millis();
     }
   }
-
-  Serial.println("Peso: ");
-  Serial.println(analogRead(pesoAtual));
-  Serial.println("Altura: ");
-  Serial.println(analogRead(alturaAtual));
 }
 
 void atualizarDisplay()
@@ -69,22 +115,19 @@ void atualizarDisplay()
   {
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Peso ");
-    lcd.print(opcaoSelecionada + 1);
+    lcd.print("Setar peso");
   }
   else if (opcaoSelecionada == 1)
   {
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Altura ");
-    lcd.print(opcaoSelecionada + 1);
+    lcd.print("Setar altura");
   }
   else if (opcaoSelecionada == 2)
   {
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Executar ");
-    lcd.print(opcaoSelecionada + 1);
+    lcd.print("Rotina");
   }
 }
 
@@ -109,14 +152,14 @@ void executarOpcao(int opcao)
   }
 }
 
-int setarPeso()
+void setarPeso()
 {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Digite o peso:");
   lcd.setCursor(0, 1);
   lcd.print(pesoMaximo);
-  lcd.print(" mg");
+  lcd.print("g");
   delay(1000);
   lcd.blink();
   lcd.setCursor(0, 1);
@@ -127,7 +170,7 @@ int setarPeso()
       pesoMaximo = min(100, pesoMaximo + 1);
       lcd.setCursor(0, 1);
       lcd.print(pesoMaximo);
-      lcd.print(" kg");
+      lcd.print("g");
       delay(200);
     }
     if (digitalRead(botaoBaixo) == 1)
@@ -135,7 +178,7 @@ int setarPeso()
       pesoMaximo = max(0, pesoMaximo - 1);
       lcd.setCursor(0, 1);
       lcd.print(pesoMaximo);
-      lcd.print(" kg");
+      lcd.print("g");
       delay(200);
     }
     if (digitalRead(botaoConfirmar) == 1)
@@ -143,7 +186,7 @@ int setarPeso()
       lcd.noBlink();
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print("ok");
+      lcd.print("Ok");
       delay(1000);
       break;
     }
@@ -151,14 +194,14 @@ int setarPeso()
   atualizarDisplay();
 }
 
-int setarAltura()
+void setarAltura()
 {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Digite a altura:");
   lcd.setCursor(0, 1);
   lcd.print(alturaMaxima);
-  lcd.print(" cm");
+  lcd.print("cm");
   delay(1000);
   lcd.blink();
   lcd.setCursor(0, 1);
@@ -169,7 +212,7 @@ int setarAltura()
       alturaMaxima = min(250, alturaMaxima + 1);
       lcd.setCursor(0, 1);
       lcd.print(alturaMaxima);
-      lcd.print(" cm");
+      lcd.print("cm");
       delay(200);
     }
     if (digitalRead(botaoBaixo) == 1)
@@ -177,7 +220,7 @@ int setarAltura()
       alturaMaxima = max(0, alturaMaxima - 1);
       lcd.setCursor(0, 1);
       lcd.print(alturaMaxima);
-      lcd.print(" cm");
+      lcd.print("cm");
       delay(200);
     }
     if (digitalRead(botaoConfirmar) == 1)
@@ -193,7 +236,7 @@ int setarAltura()
   atualizarDisplay();
 }
 
-int executaRotina()
+void executaRotina()
 {
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -201,30 +244,75 @@ int executaRotina()
   delay(1000);
   while (true)
   {
+    desligaLeds();
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Aguardando...");
-    delay(1000);
-    if (analogRead(pesoAtual) > 10)
+    delay(500);
+    if (getPeso() > 1)
     {
-      if (analogRead(alturaAtual) > alturaMaxima || analogRead(pesoAtual) > pesoMaximo)
+      if (getAltura() > alturaMaxima || getPeso() > pesoMaximo)
       {
         lcd.clear();
         lcd.setCursor(0, 0);
         lcd.print("produto descartado");
+        delay(500);
+        myservo.write(170);
         delay(2000);
+        myservo.write(45);
       }
       else
       {
         lcd.clear();
         lcd.setCursor(0, 0);
         lcd.print("produto aceito");
+        ligaLeds();
         delay(2000);
       }
     }
+    if(digitalRead(botaoConfirmar) == 1 && digitalRead(botaoCima) == 1)
+    {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Fim da rotina");
+      delay(2000);
+
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Peso: ");
+      break;
+    }
     Serial.println("Peso: ");
-    Serial.println(analogRead(pesoAtual));
+    Serial.println(getPeso());
     Serial.println("Altura: ");
-    Serial.println(analogRead(alturaAtual));
+    Serial.println(getAltura());
+  }
+}
+
+int getPeso()
+{
+  return escala.get_units(20) * 1000;
+}
+
+int getAltura()
+{
+  unsigned int distance = sonar.ping_cm();
+  int distancia = 10 - distance;
+  return distancia;
+}
+
+void desligaLeds()
+{
+  for(int i = 2; i <= 6; i++)
+  {
+    digitalWrite(i, HIGH);
+  }
+}
+
+void ligaLeds()
+{
+  for(int i = 2; i <= 6; i++)
+  {
+    digitalWrite(i, LOW);
   }
 }

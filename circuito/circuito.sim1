@@ -24,7 +24,7 @@
 
 <item itemtype="Resistor" CircId="Resistor-221" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="772,676" rotation="90" hflip="1" vflip="1" label="Resistor-221" idLabPos="-16,-24" labelrot="0" valLabPos="-16,6" valLabRot="0" Resistance="10000 Ω" />
 
-<item itemtype="VarResistor" CircId="VarResistor-224" mainComp="false" ShowProp="Value_Ohm" Show_id="true" Show_Val="true" Pos="668,708" rotation="0" hflip="1" vflip="1" label="Balanca" idLabPos="-16,-24" labelrot="0" valLabPos="-20.4051,27.7975" valLabRot="0" Min_Resistance="0 Ω" Max_Resistance="1 MΩ" Value_Ohm="619000 Ω" Dial_Step="0 Ω" Slider="true" Scale="1" />
+<item itemtype="VarResistor" CircId="VarResistor-224" mainComp="false" ShowProp="Value_Ohm" Show_id="true" Show_Val="true" Pos="668,708" rotation="0" hflip="1" vflip="1" label="Balanca" idLabPos="-16,-24" labelrot="0" valLabPos="-20.4051,27.7975" valLabRot="0" Min_Resistance="1e-12 Ω" Max_Resistance="1 MΩ" Value_Ohm="619000 Ω" Dial_Step="0 Ω" Slider="true" Scale="1" />
 
 <item itemtype="Resistor" CircId="Resistor-226" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="800,676" rotation="90" hflip="1" vflip="1" label="Resistor-226" idLabPos="-16,-24" labelrot="0" valLabPos="-16,6" valLabRot="0" Resistance="10000 Ω" />
 
